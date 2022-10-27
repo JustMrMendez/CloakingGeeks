@@ -6,7 +6,7 @@ export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   console.log(menuOpen);
   return (
-    <nav className="fixed flex w-full items-center justify-around bg-sky-50 p-2">
+    <nav className="flex w-full items-center justify-around bg-sky-50 p-2">
       {/* pass menuOpen dinamically to the Logo component */}
       <Logo menuOpen={menuOpen} />
       {/* company phone number and email */}
