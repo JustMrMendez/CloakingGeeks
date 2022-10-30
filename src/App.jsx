@@ -8,7 +8,7 @@ function App() {
   return (
     <>
       {/* <NavBar /> */}
-      <main className="mx-auto my-auto">
+      <main className="">
         <TodoList />
       </main>
       <Footer />
