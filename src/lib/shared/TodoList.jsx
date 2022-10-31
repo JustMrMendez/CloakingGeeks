@@ -2,80 +2,72 @@ import { useState, useEffect } from "react";
 
 export default function TodoList() {
   const [todos, setTodos] = useState([]);
-  const [todo, setTodo] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const placeholderTodo = {
-    id: 1,
-    task: "Todo 1",
+  const placeholderTask = {
+    id: 0,
+    name: "Task 1",
     completed: false,
-    steps: [
-      {
-        id: 1,
-        task: "Step 1",
-        completed: false,
-      },
-      {
-        id: 2,
-        task: "Step 2",
-        completed: false,
-      },
-    ],
   };
 
   const placeholderTodos = [
     {
       id: 1,
       name: "Todos 1",
-      todos: [placeholderTodo],
+      todos: [placeholderTask],
       completed: false,
     },
   ];
-  const newTodos = (e) => {
+
+  // newTodoList function to add a new todo list
+  const newTodoList = (e) => {
     e.preventDefault();
-    const newTodos = [...todos];
-    newTodos.push({
-      id: newTodos.length + 1,
-      name: e.target[0].value,
-      todos: [placeholderTodos],
-    });
+    setTodos([
+      ...todos,
+      {
+        id: todos.length + 1,
+        name: e.target[0].value,
+        tasks: [],
+      },
+    ]);
     e.target.reset();
-    setTodos(newTodos);
+    console.table(todos);
   };
 
-  const newTodo = (e, id) => {
-    e.preventDefault();
-    const newTodos = [...todos];
-    const newTodo = {
-      id: newTodos[id - 1].todos.length + 1,
-      task: e.target[0].value,
-      completed: false,
-      steps: [],
-    };
-    newTodos[id - 1].todos.push(newTodo);
-    e.target.reset();
-    setTodos(newTodos);
-    console.log(newTodos);
+  // deleteTodoList function to delete a todo list
+  const deleteTodoList = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
   };
 
-  const toggleComplete = (id, todoId) => {
-    const newTodos = [...todos];
-    newTodos[id - 1].todos[todoId - 1].completed =
-      !newTodos[id - 1].todos[todoId - 1].completed;
-
-    // if all todos are completed, set the list to completed
-    newTodos[id - 1].completed = newTodos[id - 1].todos.every(
-      (todo) => todo.completed
+  // addTask function to add a new todo
+  const addTask = (e, id) => {
+    e.preventDefault();
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id === id) {
+          todo.tasks.push({
+            id: todo.tasks.length + 1,
+            name: e.target[0].value,
+            completed: false,
+          });
+        }
+        return todo;
+      })
     );
-    setTodos(newTodos);
+    e.target.reset();
+    console.log(todos);
   };
 
-  // deleteList
-  const deleteTodos = (id) => {
-    const newTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(newTodos);
+  // deleteTask function to delete a todo
+  const deleteTask = (todoId, taskId) => {
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id === todoId) {
+          todo.tasks = todo.tasks.filter((task) => task.id !== taskId);
+        }
+        return todo;
+      })
+    );
   };
 
   const handleTodosNameChange = (e, key) => {
@@ -85,79 +77,25 @@ export default function TodoList() {
     setTodos(newTodos);
   };
 
-  useEffect(() => {
-    // if there is no todos in localStorage, set it to placeholderTodos
-
-    if (!localStorage.getItem("todos")) {
-      localStorage.setItem("todos", JSON.stringify(placeholderTodos));
-    }
-
-    setTodos(JSON.parse(localStorage.getItem("todos")));
-    // if there is no todos in state, set it to placeholderTodos
-    if (!todos.length) {
-      console.log(todos.length, "no todos");
-      setTodos(placeholderTodos);
-    }
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, []);
-
   return (
     <>
       <h1 className="mb-10 text-center text-5xl font-black text-slate-900">
         To Geeka do
       </h1>
-      {/* add new todo */}
-      <div className="">
-        <div className="flex items-center justify-end gap-3">
-          <label className="mb-2 block w-full text-sm font-bold text-gray-700">
-            Todos List
-            <select
-              id="todos-list"
-              className="focus:shadow-outline mb-3 w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-            >
-              {todos.map((todos) => (
-                <option key={todos.id} value={todos.id}>
-                  {todos.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            onClick={() => setModalOpen(true)}
-            className="h-fit min-w-fit rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-          >
-            New List
-          </button>
-        </div>
-        <div className="flex items-center justify-end gap-3">
-          <label className="mb-2 block w-full text-sm font-bold text-gray-700">
-            Todo
-            <input
-              className="focus:shadow-outline mb-3 w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-              type="text"
-              placeholder="Todo"
-            />
-          </label>
-          <button className="h-fit min-w-fit rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700">
-            Add Todo
-          </button>
-        </div>
-      </div>
-      {/* todos list */}
-      <form onSubmit={newTodos}>
+      <form className="mx-auto w-1/3" onSubmit={(e) => newTodoList(e)}>
         <input
           className="focus:shadow-outline mb-3 w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
           type="text"
           placeholder="Todos List"
         />
       </form>
-      <div className="group relative flex flex-wrap justify-center gap-5 transition-all duration-500">
+      <ul className="group relative flex flex-wrap justify-center gap-5 transition-all duration-500">
         {todos.map((todos) => (
-          <ul
+          <li
             key={todos.id}
             className={`relative ${
-              todos.completed ? "bg-emerald-200" : "bg-slate-200"
-            } top-0 left-0 flex h-fit w-96 flex-col justify-between gap-5 overflow-hidden rounded-lg bg-slate-200 pb-0 font-sans accent-slate-200 shadow-md transition-all duration-500 hover:z-50 hover:shadow-2xl`}
+              todos.completed ? "bg-emerald-200 line-through" : "bg-slate-200"
+            } top-0 left-0 flex h-fit w-96 flex-col justify-between rounded-lg bg-slate-200 pb-0 font-sans accent-slate-200 shadow-md transition-all duration-500 hover:z-50 hover:shadow-2xl`}
           >
             <div className="flex justify-between">
               {/* editable todos name */}
@@ -171,7 +109,7 @@ export default function TodoList() {
                 />
               </div>
               {/* x button to delete todos */}
-              <button onClick={() => deleteTodos(todos.id)}>
+              <button className="mr-3" onClick={() => deleteTodoList(todos.id)}>
                 <svg
                   className="h-6 w-6 text-slate-900"
                   fill="none"
@@ -189,50 +127,53 @@ export default function TodoList() {
               </button>
             </div>
             {/* todo */}
-            {todos.todos.map((todo) => (
-              <li
-                onClick={() => toggleComplete(todo.id, todos.id)}
-                key={todo.id}
-                className={`flex select-none items-center justify-center gap-2 ${
-                  todo.completed
-                    ? "bg-slate-500/50 line-through"
-                    : "bg-slate-500"
-                } py-1 px-4 shadow-sm  transition-all hover:scale-[1.01]`}
-              >
-                <label className="w-full cursor-no-drop border-0 bg-transparent p-2 text-base font-black text-slate-50">
-                  {todo.task} + ss
-                </label>
-                <button
-                  onClick={() => deleteTodoItem(todo.id, todos.id)}
-                  className="h-6 w-6 text-slate-900"
+            <ul className="flex flex-col gap-3">
+              {todos.tasks.map((task) => (
+                <li
+                  key={task.id}
+                  className={`flex select-none items-center justify-center ${
+                    todos.tasks.completed
+                      ? "bg-slate-500/50 line-through"
+                      : "bg-slate-500"
+                  } py-1 px-4 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:rounded-md`}
                 >
-                  <svg
-                    className="h-6 w-6 text-slate-900"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
+                  <label
+                    // onClick={() => toggleComplete(todo.id, todos.id)}
+                    className="w-full  cursor-no-drop border-0 bg-transparent p-2 text-base font-black text-slate-50 first-letter:uppercase"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </li>
-            ))}
-            <form key={todos.id} onSubmit={(e) => newTodo(e, todos.id)}>
+                    {task.name}
+                  </label>
+                  <button
+                    onClick={() => deleteTask(todos.id, task.id)}
+                    className="h-6 w-6 text-slate-200"
+                  >
+                    <svg
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <form onSubmit={(e) => addTask(e, todos.id)}>
               <input
-                className="w-full border-0  bg-slate-400/50 px-3 py-2 leading-tight text-slate-700 focus:outline-none focus:ring-0 focus:ring-offset-0"
+                className="w-full rounded-b-md border-0 bg-transparent px-3 py-2 leading-tight text-slate-700 backdrop-blur-sm transition-all duration-300 hover:bg-slate-400/50 focus:translate-y-4 focus:scale-105 focus:rounded-md focus:bg-slate-400/50 focus:outline-none focus:ring-0 focus:ring-offset-0"
                 type="text"
-                placeholder="Todos List"
+                placeholder="Task List"
               />
             </form>
-          </ul>
+          </li>
         ))}
-      </div>
+      </ul>
       {/* modal that ask for a new todos name */}
       <div
         className={`${
@@ -268,7 +209,7 @@ export default function TodoList() {
             </button>
           </div>
           <form
-            onSubmit={newTodos}
+            onSubmit={(e) => newTodoList(e)}
             className="flex items-center justify-end gap-3"
           >
             <label className="mb-2 block w-full text-sm font-bold text-gray-700">
