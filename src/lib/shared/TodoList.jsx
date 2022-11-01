@@ -14,7 +14,7 @@ export default function TodoList() {
     {
       id: 1,
       name: "Todos 1",
-      todos: [placeholderTask],
+      tasks: [placeholderTask],
       completed: false,
     },
   ];
@@ -34,14 +34,15 @@ export default function TodoList() {
     console.table(todos);
   };
 
-  // deleteTodoList function to delete a todo list
   const deleteTodoList = (id) => {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
 
-  // addTask function to add a new todo
   const addTask = (e, id) => {
     e.preventDefault();
+    if (e.target[0].value == "") {
+      return alert("You need a name for your Task");
+    }
     setTodos(
       todos.map((todo) => {
         if (todo.id === id) {
@@ -58,7 +59,6 @@ export default function TodoList() {
     console.log(todos);
   };
 
-  // deleteTask function to delete a todo
   const deleteTask = (todoId, taskId) => {
     setTodos(
       todos.map((todo) => {
@@ -70,12 +70,38 @@ export default function TodoList() {
     );
   };
 
-  const handleTodosNameChange = (e, key) => {
-    // change the Todos.name value
+  const completeTask = (taskId, todoId) => {
+    setTodos(
+      todos.map((todo) => {
+        console.table(todo);
+        if (todo.id == todoId) {
+          todo.tasks.map((task) => {
+            console.log(typeof task.id, typeof taskId);
+            if (task.id == taskId) {
+              task.completed = true;
+            }
+          });
+        }
+      })
+    );
+  };
+  const toggleComplete = (taskId, todoId) => {
     const newTodos = [...todos];
-    newTodos.find((todo) => todo.id === key).name = e.target.value;
+    newTodos[todoId - 1].tasks[taskId - 1].completed =
+      !newTodos[todoId - 1].tasks[taskId - 1].completed;
+
+    // if all todos are completed, set the list to completed
+    newTodos[todoId - 1].completed = newTodos[todoId - 1].tasks.every(
+      (todo) => todo.completed
+    );
     setTodos(newTodos);
   };
+
+  function handleTodosNameChange(e, key) {
+    const newTodos = [...todos];
+    newTodos.find((todo) => todo.taskId === key).name = e.target.value;
+    setTodos(newTodos);
+  }
 
   return (
     <>
@@ -90,12 +116,12 @@ export default function TodoList() {
         />
       </form>
       <ul className="group relative flex flex-wrap justify-center gap-5 transition-all duration-500">
-        {todos.map((todos) => (
+        {todos.map((todo) => (
           <li
-            key={todos.id}
+            key={todo.id}
             className={`relative ${
-              todos.completed ? "bg-emerald-200 line-through" : "bg-slate-200"
-            } top-0 left-0 flex h-fit w-96 flex-col justify-between rounded-lg bg-slate-200 pb-0 font-sans accent-slate-200 shadow-md transition-all duration-500 hover:z-50 hover:shadow-2xl`}
+              todo.completed ? "bg-emerald-200 line-through" : "bg-slate-200"
+            }  top-0 left-0 flex h-fit w-96 flex-col justify-between rounded-lg bg-slate-200 pb-0 font-sans accent-slate-200 shadow-md transition-all duration-500 hover:z-50 hover:shadow-2xl`}
           >
             <div className="flex justify-between">
               {/* editable todos name */}
@@ -104,12 +130,12 @@ export default function TodoList() {
                   className="border-0 bg-transparent text-xl font-bold text-slate-500 focus:ring-0"
                   type="text"
                   placeholder="Todos List"
-                  value={todos.name}
-                  onChange={(e) => handleTodosNameChange(e, todos.id)}
+                  value={todo.name}
+                  onChange={(e) => handleTodosNameChange(e, todo.id)}
                 />
               </div>
               {/* x button to delete todos */}
-              <button className="mr-3" onClick={() => deleteTodoList(todos.id)}>
+              <button className="mr-3" onClick={() => deleteTodoList(todo.id)}>
                 <svg
                   className="h-6 w-6 text-slate-900"
                   fill="none"
@@ -128,23 +154,23 @@ export default function TodoList() {
             </div>
             {/* todo */}
             <ul className="flex flex-col gap-3">
-              {todos.tasks.map((task) => (
+              {todo.tasks.map((task) => (
                 <li
                   key={task.id}
                   className={`flex select-none items-center justify-center ${
-                    todos.tasks.completed
+                    todo.tasks.completed
                       ? "bg-slate-500/50 line-through"
                       : "bg-slate-500"
                   } py-1 px-4 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:rounded-md`}
                 >
                   <label
-                    // onClick={() => toggleComplete(todo.id, todos.id)}
+                    onClick={() => toggleComplete(task.id, todo.id)}
                     className="w-full  cursor-no-drop border-0 bg-transparent p-2 text-base font-black text-slate-50 first-letter:uppercase"
                   >
                     {task.name}
                   </label>
                   <button
-                    onClick={() => deleteTask(todos.id, task.id)}
+                    onClick={() => deleteTask(todo.id, task.id)}
                     className="h-6 w-6 text-slate-200"
                   >
                     <svg
@@ -164,7 +190,7 @@ export default function TodoList() {
                 </li>
               ))}
             </ul>
-            <form onSubmit={(e) => addTask(e, todos.id)}>
+            <form onSubmit={(e) => addTask(e, todo.id)}>
               <input
                 className="w-full rounded-b-md border-0 bg-transparent px-3 py-2 leading-tight text-slate-700 backdrop-blur-sm transition-all duration-300 hover:bg-slate-400/50 focus:translate-y-4 focus:scale-105 focus:rounded-md focus:bg-slate-400/50 focus:outline-none focus:ring-0 focus:ring-offset-0"
                 type="text"
