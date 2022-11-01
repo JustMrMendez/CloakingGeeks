@@ -70,21 +70,6 @@ export default function TodoList() {
     );
   };
 
-  const completeTask = (taskId, todoId) => {
-    setTodos(
-      todos.map((todo) => {
-        console.table(todo);
-        if (todo.id == todoId) {
-          todo.tasks.map((task) => {
-            console.log(typeof task.id, typeof taskId);
-            if (task.id == taskId) {
-              task.completed = true;
-            }
-          });
-        }
-      })
-    );
-  };
   const toggleComplete = (taskId, todoId) => {
     const newTodos = [...todos];
     newTodos[todoId - 1].tasks[taskId - 1].completed =
@@ -158,7 +143,7 @@ export default function TodoList() {
                 <li
                   key={task.id}
                   className={`flex select-none items-center justify-center ${
-                    todo.tasks.completed
+                    task.completed
                       ? "bg-slate-500/50 line-through"
                       : "bg-slate-500"
                   } py-1 px-4 transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:rounded-md`}
